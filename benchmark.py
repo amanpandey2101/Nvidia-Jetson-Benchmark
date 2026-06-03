@@ -740,18 +740,22 @@ def main():
     
     args = parser.parse_args()
 
-    # Setup directories and logging
+  
     setup_logger("logs")
     logger = logging.getLogger("benchmark.main")
     logger.info("Initializing Benchmark Utility...")
 
-    # Load dataset
+
     if args.live_url:
         local_images = []
         max_download = 0
     else:
         dataset = CSVDataset(args.csv_path, args.image_dir)
-        max_download = args.max_download if args.max_download is not None else len(dataset.urls)
+        if args.max_download is not None:
+            max_download = args.max_download
+        else:
+            max_download = len(dataset.urls) if args.live_fetch else max(500, args.preload_limit)
+            
         if args.live_fetch:
             local_images = []
             if not dataset.urls:
